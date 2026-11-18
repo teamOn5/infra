@@ -1,11 +1,40 @@
 services:
+  # [Service Discovery: Eureka Server]
+  eureka:
+    image: ${DOCKER_USERNAME}/eureka:${IMAGE_TAG:-latest}
+    container_name: app-eureka
+    restart: always
+    ports:
+      - "8761:8761"
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xms96m -Xmx192m -XX:+UseG1GC"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # [API Gateway: Spring Cloud Gateway]
+  gateway:
+    image: ${DOCKER_USERNAME}/gateway:${IMAGE_TAG:-latest}
+    container_name: app-gateway
+    restart: always
+    ports:
+      - "8080:8080" # ALB 진입 포트
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://172.31.29.243:8761/eureka/
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
   # [Service 1: Test Service / User Service]
   test-service:
     image: ${DOCKER_USERNAME}/test-service:${IMAGE_TAG:-latest}
     container_name: app-test-service
     restart: always
     ports:
-      - "8080:8080" # ALB 타겟 그룹(8080)과 직접 연결
+      - "8081:8080" # 게이트웨이 뒤로 이동 (8081)
     environment:
       JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_DATASOURCE_URL: jdbc:mysql://172.31.39.86:3306/user_db?useSSL=false&allowPublicKeyRetrieval=true
@@ -15,6 +44,7 @@ services:
       SPRING_DATA_REDIS_PORT: 6379
       SPRING_DATA_REDIS_PASSWORD: "1234"
       SPRING_KAFKA_BOOTSTRAP_SERVERS: 172.31.39.86:9092
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://172.31.29.243:8761/eureka/
     deploy:
       resources:
         limits:
@@ -36,6 +66,7 @@ services:
       LIVEKIT_API_KEY: API_KEY_LIVEKIT
       LIVEKIT_API_SECRET: SECRET_LIVEKIT_KEY_2026
       SPRING_KAFKA_BOOTSTRAP_SERVERS: 172.31.39.86:9092
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://172.31.29.243:8761/eureka/
     deploy:
       resources:
         limits:
@@ -57,9 +88,8 @@ services:
       SPRING_DATA_REDIS_PORT: 6379
       SPRING_DATA_REDIS_PASSWORD: "1234"
       SPRING_KAFKA_BOOTSTRAP_SERVERS: 172.31.39.86:9092
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://172.31.29.243:8761/eureka/
     deploy:
       resources:
         limits:
           memory: 384M
-
-  # 나머지 8~10개 서비스도 동일 규격으로 추가
