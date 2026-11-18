@@ -1,0 +1,65 @@
+services:
+  # [Service 1: User Service]
+  user-service:
+    image: ${DOCKER_USERNAME}/user-service:${IMAGE_TAG:-latest}
+    container_name: app-user-service
+    restart: always
+    ports:
+      - "8081:8080"
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
+      SPRING_DATASOURCE_URL: jdbc:mysql://172.31.39.86:3306/user_db?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      SPRING_DATA_REDIS_HOST: 172.31.39.86
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: "1234"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: 172.31.39.86:9092
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
+  # [Service 2: Live / WebSocket Service]
+  live-service:
+    image: ${DOCKER_USERNAME}/live-service:${IMAGE_TAG:-latest}
+    container_name: app-live-service
+    restart: always
+    ports:
+      - "8082:8080"
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m -XX:+UseG1GC"
+      SPRING_DATASOURCE_URL: jdbc:mysql://172.31.39.86:3306/live_db?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      LIVEKIT_HOST: http://localhost:7880
+      LIVEKIT_API_KEY: API_KEY_LIVEKIT
+      LIVEKIT_API_SECRET: SECRET_LIVEKIT_KEY_2026
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: 172.31.39.86:9092
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # [Service 3: Order Service]
+  order-service:
+    image: ${DOCKER_USERNAME}/order-service:${IMAGE_TAG:-latest}
+    container_name: app-order-service
+    restart: always
+    ports:
+      - "8083:8080"
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
+      SPRING_DATASOURCE_URL: jdbc:mysql://172.31.39.86:3306/order_db?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      SPRING_DATA_REDIS_HOST: 172.31.39.86
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: "1234"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: 172.31.39.86:9092
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
+  # 나머지 8~10개 서비스도 동일 규격으로 추가

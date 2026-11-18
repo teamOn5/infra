@@ -1,0 +1,23 @@
+port: 7880
+bind_addresses:
+  - ""
+
+rtc:
+  tcp_port: 7881
+  udp_port: 7882
+  port_range_start: 50000
+  port_range_end: 60000
+  use_external_ip: true
+
+# API Key and Secret
+keys:
+  API_KEY_LIVEKIT: SECRET_LIVEKIT_KEY_2026
+
+# DB server Redis (Session and room sync)
+redis:
+  address: 172.31.39.86:6379
+  password: "1234"
+  db: 1
+
+logging:
+  level: info
