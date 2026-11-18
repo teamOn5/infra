@@ -1,8 +1,8 @@
 services:
-  # [Service 1: User Service]
-  user-service:
-    image: ${DOCKER_USERNAME}/user-service:${IMAGE_TAG:-latest}
-    container_name: app-user-service
+  # [Service 1: Test Service / User Service]
+  test-service:
+    image: ${DOCKER_USERNAME}/test-service:${IMAGE_TAG:-latest}
+    container_name: app-test-service
     restart: always
     ports:
       - "8080:8080" # ALB 타겟 그룹(8080)과 직접 연결
