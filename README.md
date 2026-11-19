@@ -35,7 +35,8 @@
 
 - **관리형 데이터베이스 (DBaaS)**
   - MongoDB Atlas
-  - 역할: 별도의 클라우드 환경에서 MongoDB 데이터베이스 관리
+  - 역할: 별도의 클라우드 환경에서 MongoDB 데이터베이스 관리 (실시간 라이브 채팅 로그, 시청 기록 저장)
+  - 접속 URI: `mongodb+srv://tjsghkwlsgh_db_user:1234@cluster0.61vehwi.mongodb.net/live_stream_db?retryWrites=true&w=majority`
 
 - **객체 스토리지 (Object Storage)**
   - AWS S3

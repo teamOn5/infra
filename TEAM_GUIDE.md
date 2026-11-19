@@ -45,6 +45,7 @@
 | **Kafka UI** | 카프카 토픽/메시지 모니터링 | `http://15.164.172.146:8900` | 브라우저 즉시 접속 가능 |
 | **Eureka Server** | 서비스 등록/헬스 대시보드 | `http://15.164.172.146:8761` | 브라우저 즉시 접속 가능 |
 | **Grafana** | 서버/컨테이너 모니터링 | `http://<DB_서버_EIP>:3000` | ID: `admin` / PW: `admin123!` |
+| **MongoDB Atlas** | NoSQL (실시간 채팅/시청 로그) | `mongodb+srv://tjsghkwlsgh_db_user:1234@cluster0.61vehwi.mongodb.net/live_stream_db?retryWrites=true&w=majority` | Cloud DBaaS |
 
 ---
 
@@ -68,7 +69,11 @@ spring:
       port: 6379
       password: "1234"
 
-  # 3. Apache Kafka 메시지 브로커 설정
+  # 3. MongoDB Atlas (NoSQL DBaaS) - 실시간 채팅 로그 및 시청 기록
+    mongodb:
+      uri: ${MONGODB_URI:mongodb+srv://tjsghkwlsgh_db_user:1234@cluster0.61vehwi.mongodb.net/live_stream_db?retryWrites=true&w=majority}
+
+  # 4. Apache Kafka 메시지 브로커 설정
   kafka:
     bootstrap-servers: 172.31.39.86:9092
     consumer:
@@ -80,7 +85,7 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
-# 4. Eureka 클라이언트 등록 설정 (필수!)
+# 5. Eureka 클라이언트 등록 설정 (필수!)
 eureka:
   client:
     service-url:
@@ -90,7 +95,7 @@ eureka:
   instance:
     prefer-ip-address: true
 
-# 5. LiveKit 연동 설정 (라이브/스트리밍 관련 서비스만 해당)
+# 6. LiveKit 연동 설정 (라이브/스트리밍 관련 서비스만 해당)
 livekit:
   host: http://172.31.29.243:7880
   api-key: API_KEY_LIVEKIT
