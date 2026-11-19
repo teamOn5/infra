@@ -16,8 +16,8 @@
 
 - **백엔드 서버 (Backend EC2)**
   - 인스턴스 유형: `t3.large`
-  - 퍼블릭 IP: `15.164.172.146`
-  - 프라이빗 IP: `172.31.29.243`
+  - 퍼블릭 IP: `<BACKEND_EC2_PUBLIC_IP>` (팀 내부 비공개 채널 공유)
+  - 프라이빗 IP: `<BACKEND_EC2_PRIVATE_IP>`
   - 주요 구성 요소:
     - LiveKit WebRTC SFU (7880, 7881, 7882, 50000~60000)
     - Kafka UI (8900)
@@ -25,7 +25,7 @@
 
 - **데이터베이스 및 미들웨어 서버 (DB/Middleware EC2)**
   - 인스턴스 유형: `t3.medium`
-  - 프라이빗 IP: `172.31.39.86`
+  - 프라이빗 IP: `<DB_EC2_PRIVATE_IP>` (팀 내부 비공개 채널 공유)
   - 주요 구성 요소:
     - MySQL 8.0 (3306)
     - Redis 7 (6379)

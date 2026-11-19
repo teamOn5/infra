@@ -31,7 +31,7 @@
        ▼
 4. 각 마이크로서비스 컨테이너 (8081, 8082, 8083 ...)
        │
-       ▼ (AWS 사설망 통신: 172.31.39.86)
+       ▼ (AWS 사설망 통신: <DB_EC2_PRIVATE_IP>)
 5. DB & 미들웨어 (EC2 #2)
    - MySQL 8.0 (3306) | Redis 7 (6379) | Kafka KRaft (9092) | 모니터링 (Prometheus, Grafana)
 ```
@@ -41,9 +41,9 @@
 | :--- | :--- | :--- | :--- |
 | **프론트엔드 웹** | 서비스 메인 웹 | `https://onfrontend.vercel.app/` | Vercel 자동 배포 |
 | **API Entry Point** | 백엔드 통합 API 진입로 | `http://app-alb-1347922990.ap-northeast-2.elb.amazonaws.com` | ALB -> Gateway |
-| **LiveKit SFU** | 실시간 영상/음성 스트리밍 | `ws://15.164.172.146:7880` | WebRTC (UDP: 7882, 50000~60000) |
-| **Kafka UI** | 카프카 토픽/메시지 모니터링 | `http://15.164.172.146:8900` | 브라우저 즉시 접속 가능 |
-| **Eureka Server** | 서비스 등록/헬스 대시보드 | `http://15.164.172.146:8761` | 브라우저 즉시 접속 가능 |
+| **LiveKit SFU** | 실시간 영상/음성 스트리밍 | `ws://<BACKEND_EC2_PUBLIC_IP>:7880` | WebRTC (UDP: 7882, 50000~60000) |
+| **Kafka UI** | 카프카 토픽/메시지 모니터링 | `http://<BACKEND_EC2_PUBLIC_IP>:8900` | 브라우저 접속 (IP 팀 내부 공유) |
+| **Eureka Server** | 서비스 등록/헬스 대시보드 | `http://<BACKEND_EC2_PUBLIC_IP>:8761` | 브라우저 접속 (IP 팀 내부 공유) |
 | **Grafana** | 서버/컨테이너 모니터링 | `http://<DB_서버_EIP>:3000` | ID: `admin` / PW: `<팀_내부_공유>` |
 | **MongoDB Atlas** | NoSQL (실시간 채팅/시청 로그) | `mongodb+srv://<USERNAME>:<PASSWORD>@cluster0.61vehwi.mongodb.net/live_stream_db?retryWrites=true&w=majority` | Cloud DBaaS (계정/PW 팀 내부 공유) |
 
@@ -57,7 +57,7 @@
 spring:
   # 1. MySQL 설정 (서비스별 스키마 지정: user_db, order_db, live_db 등)
   datasource:
-    url: jdbc:mysql://172.31.39.86:3306/본인_DB_이름?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://${DB_HOST:<DB_EC2_PRIVATE_IP>}:3306/본인_DB_이름?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: user
     password: "${DB_PASSWORD:<DB_PASSWORD>}"
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -65,7 +65,7 @@ spring:
   # 2. Redis 캐시 및 세션 설정
   data:
     redis:
-      host: 172.31.39.86
+      host: ${REDIS_HOST:<DB_EC2_PRIVATE_IP>}
       port: 6379
       password: "${REDIS_PASSWORD:<REDIS_PASSWORD>}"
 
@@ -75,7 +75,7 @@ spring:
 
   # 4. Apache Kafka 메시지 브로커 설정
   kafka:
-    bootstrap-servers: 172.31.39.86:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:<DB_EC2_PRIVATE_IP>:9092}
     consumer:
       group-id: ${spring.application.name}-group
       auto-offset-reset: earliest
@@ -89,7 +89,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://172.31.29.243:8761/eureka/}
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://<BACKEND_EC2_PRIVATE_IP>:8761/eureka/}
     register-with-eureka: true
     fetch-registry: true
   instance:
@@ -97,7 +97,7 @@ eureka:
 
 # 6. LiveKit 연동 설정 (라이브/스트리밍 관련 서비스만 해당)
 livekit:
-  host: http://172.31.29.243:7880
+  host: http://${LIVEKIT_HOST:<BACKEND_EC2_PRIVATE_IP>}:7880
   api-key: ${LIVEKIT_API_KEY:<LIVEKIT_API_KEY>}
   api-secret: ${LIVEKIT_API_SECRET:<LIVEKIT_API_SECRET>}
 ```
@@ -190,7 +190,7 @@ jobs:
       - name: 6. 백엔드 EC2 원격 자동 배포
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: 15.164.172.146
+          host: ${{ secrets.EC2_HOST }} # 또는 <BACKEND_EC2_PUBLIC_IP>
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
@@ -226,7 +226,7 @@ jobs:
    ```
 2. **LiveKit 실시간 영상/음성 스트리밍 연결:**  
    LiveKit React SDK 연결 시 아래 URL을 사용합니다:
-   - 환경 변수: `process.env.NEXT_PUBLIC_LIVEKIT_URL` (`ws://15.164.172.146:7880`)
+   - 환경 변수: `process.env.NEXT_PUBLIC_LIVEKIT_URL` (`ws://<BACKEND_EC2_PUBLIC_IP>:7880`)
 
 ---
 
