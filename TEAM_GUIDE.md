@@ -44,8 +44,8 @@
 | **LiveKit SFU** | 실시간 영상/음성 스트리밍 | `ws://15.164.172.146:7880` | WebRTC (UDP: 7882, 50000~60000) |
 | **Kafka UI** | 카프카 토픽/메시지 모니터링 | `http://15.164.172.146:8900` | 브라우저 즉시 접속 가능 |
 | **Eureka Server** | 서비스 등록/헬스 대시보드 | `http://15.164.172.146:8761` | 브라우저 즉시 접속 가능 |
-| **Grafana** | 서버/컨테이너 모니터링 | `http://<DB_서버_EIP>:3000` | ID: `admin` / PW: `admin123!` |
-| **MongoDB Atlas** | NoSQL (실시간 채팅/시청 로그) | `mongodb+srv://tjsghkwlsgh_db_user:1234@cluster0.61vehwi.mongodb.net/live_stream_db?retryWrites=true&w=majority` | Cloud DBaaS |
+| **Grafana** | 서버/컨테이너 모니터링 | `http://<DB_서버_EIP>:3000` | ID: `admin` / PW: `<팀_내부_공유>` |
+| **MongoDB Atlas** | NoSQL (실시간 채팅/시청 로그) | `mongodb+srv://<USERNAME>:<PASSWORD>@cluster0.61vehwi.mongodb.net/live_stream_db?retryWrites=true&w=majority` | Cloud DBaaS (계정/PW 팀 내부 공유) |
 
 ---
 
@@ -59,7 +59,7 @@ spring:
   datasource:
     url: jdbc:mysql://172.31.39.86:3306/본인_DB_이름?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: user
-    password: "1234"
+    password: "${DB_PASSWORD:<DB_PASSWORD>}"
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   # 2. Redis 캐시 및 세션 설정
@@ -67,11 +67,11 @@ spring:
     redis:
       host: 172.31.39.86
       port: 6379
-      password: "1234"
+      password: "${REDIS_PASSWORD:<REDIS_PASSWORD>}"
 
   # 3. MongoDB Atlas (NoSQL DBaaS) - 실시간 채팅 로그 및 시청 기록
     mongodb:
-      uri: ${MONGODB_URI:mongodb+srv://tjsghkwlsgh_db_user:1234@cluster0.61vehwi.mongodb.net/live_stream_db?retryWrites=true&w=majority}
+      uri: ${MONGODB_URI:mongodb+srv://<USERNAME>:<PASSWORD>@cluster0.61vehwi.mongodb.net/live_stream_db?retryWrites=true&w=majority}
 
   # 4. Apache Kafka 메시지 브로커 설정
   kafka:
@@ -98,8 +98,8 @@ eureka:
 # 6. LiveKit 연동 설정 (라이브/스트리밍 관련 서비스만 해당)
 livekit:
   host: http://172.31.29.243:7880
-  api-key: API_KEY_LIVEKIT
-  api-secret: SECRET_LIVEKIT_KEY_2026
+  api-key: ${LIVEKIT_API_KEY:<LIVEKIT_API_KEY>}
+  api-secret: ${LIVEKIT_API_SECRET:<LIVEKIT_API_SECRET>}
 ```
 
 ---
